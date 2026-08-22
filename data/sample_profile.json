@@ -1,0 +1,30 @@
+{
+  "department": "컴퓨터공학과",
+  "year": 3,
+  "name": "지민",
+  "double_major_departments": [],
+  "transcript": [
+    {"course_code": "CSE101", "course_name": "프로그래밍입문", "credits": 3, "grade": "A+", "semester": "2024-1", "category": "전공필수"},
+    {"course_code": "CSE201", "course_name": "자료구조", "credits": 3, "grade": "A0", "semester": "2024-2", "category": "전공필수"},
+    {"course_code": "CSE314", "course_name": "데이터베이스", "credits": 3, "grade": "B+", "semester": "2025-1", "category": "전공선택"},
+    {"course_code": "GEN101", "course_name": "글쓰기와 의사소통", "credits": 2, "grade": "A+", "semester": "2024-1", "category": "필수교양"},
+    {"course_code": "COR220", "course_name": "철학적 사유와 논리", "credits": 3, "grade": "B0", "semester": "2024-2", "category": "중핵교양"},
+    {"course_code": "BAS150", "course_name": "기초통계학", "credits": 3, "grade": "A0", "semester": "2025-1", "category": "토대교양"},
+    {"course_code": "GEL140", "course_name": "심리학개론", "credits": 2, "grade": "B+", "semester": "2024-1", "category": "일반선택"}
+  ],
+  "requirements": [
+    {"category": "필수교양", "required_credits": 4},
+    {"category": "중핵교양", "required_credits": 6},
+    {"category": "토대교양", "required_credits": 6},
+    {"category": "전공필수", "required_credits": 9},
+    {"category": "전공선택", "required_credits": 15},
+    {"category": "일반선택", "required_credits": 6}
+  ],
+  "required_courses": [
+    {"course_code": "CSE101", "course_name": "프로그래밍입문", "category": "전공필수", "credits": 3, "equivalent_codes": [], "note": ""},
+    {"course_code": "CSE201-02", "course_name": "자료구조", "category": "전공필수", "credits": 3, "equivalent_codes": ["CSE201"], "note": "구 교육과정 CSE201 이수자는 대체 인정"},
+    {"course_code": "CSE305", "course_name": "운영체제", "category": "전공필수", "credits": 3, "equivalent_codes": [], "note": ""},
+    {"course_code": "GEN101", "course_name": "글쓰기와 의사소통", "category": "필수교양", "credits": 2, "equivalent_codes": [], "note": ""},
+    {"course_code": "GEN110", "course_name": "대학영어", "category": "필수교양", "credits": 2, "equivalent_codes": [], "note": ""}
+  ]
+}
