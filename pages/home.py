@@ -127,6 +127,7 @@ st.write("")
 
 if profile is None:
     st.info("처음이시군요! '성적표 업로드' 페이지에서 프로필을 등록하면 이 홈 화면이 채워집니다.")
+    st.page_link("pages/성적표_업로드.py", label="성적표 업로드로 이동", icon="📄")
 else:
     greeting_name = profile.name or "학생"
     st.markdown(f"### 안녕하세요, {greeting_name}님")
@@ -145,6 +146,7 @@ with left:
             "'추천 시간표'에서 시간표를 골라 홈 화면에 표시해보세요.</span></div>",
             unsafe_allow_html=True,
         )
+        st.page_link("pages/추천_시간표.py", label="추천 시간표로 이동", icon="🎯")
     else:
         candidate_dt, course, slot = next_class
         st.markdown(

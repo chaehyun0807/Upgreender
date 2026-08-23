@@ -331,7 +331,22 @@ if current_profile is not None and current_profile.required_courses:
         st.success("등록된 필수과목을 모두 이수했습니다.")
 
 st.divider()
-if st.button("💾 학생 프로필 저장", type="primary"):
+st.markdown(
+    """
+    <style>
+    .st-key-profile_save_container button[kind="primary"] {
+        background:#FFFFFF; border-color:#D1D5DB; color:#101312;
+    }
+    .st-key-profile_save_container button[kind="primary"]:hover {
+        background:#F3F4F6; border-color:#9CA3AF; color:#101312;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+with st.container(key="profile_save_container"):
+    profile_save_clicked = st.button("💾 학생 프로필 저장", type="primary")
+if profile_save_clicked:
     if not st.session_state.department:
         st.error("학과를 입력하세요.")
     else:

@@ -19,11 +19,13 @@ st.title("🎯 추천 시간표")
 profile = load_profile()
 if profile is None:
     st.warning("먼저 '성적표 업로드' 페이지에서 학생 프로필을 저장하세요.")
+    st.page_link("pages/성적표_업로드.py", label="성적표 업로드로 이동", icon="📄")
     st.stop()
 
 candidates = [s for _, s in list_syllabi()]
 if not candidates:
-    st.warning("등록된 강의계획서가 없습니다. '강의계획서 비교' 페이지에서 등록하거나 샘플 데이터를 불러오세요.")
+    st.warning("등록된 강의계획서가 없습니다. '수강' 페이지에서 등록하거나 샘플 데이터를 불러오세요.")
+    st.page_link("pages/수강.py", label="수강 페이지로 이동", icon="🎓")
     st.stop()
 
 st.subheader("현재 이수 현황")
@@ -102,7 +104,8 @@ if timetables is not None:
 
                 if st.button("⭐ 이 시간표를 홈 화면에 표시", key=f"select_timetable_{i}"):
                     save_selected_timetable(tt.courses)
-                    st.success("홈 화면에 표시할 시간표로 선택했습니다. 홈으로 이동해서 확인하세요.")
+                    st.success("홈 화면에 표시할 시간표로 선택했습니다.")
+                    st.page_link("pages/home.py", label="홈으로 이동", icon="🏠")
 
                 if tt.requirement_breakdown:
                     breakdown_df = pd.DataFrame(

@@ -41,6 +41,7 @@ else:
     st.info(
         "아직 선택한 과목이 없습니다. '추천 시간표'에서 통째로 고르거나, 아래에서 직접 과목을 추가해보세요."
     )
+    st.page_link("pages/추천_시간표.py", label="추천 시간표로 이동", icon="🎯")
 
 st.divider()
 st.subheader("✏️ 직접 수정")

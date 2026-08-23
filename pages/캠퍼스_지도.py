@@ -35,13 +35,15 @@ if not has_kakao_keys():
 selected_courses = load_selected_timetable() or []
 if not selected_courses:
     st.info("먼저 '추천 시간표'에서 시간표를 선택하고 '내 시간표'에 고정하세요.")
+    st.page_link("pages/추천_시간표.py", label="추천 시간표로 이동", icon="🎯")
     st.stop()
 
 if not any(c.location for c in selected_courses):
     st.info(
-        "선택한 시간표에 등록된 강의실 위치가 없습니다. '강의계획서 비교'에서 각 과목의 '장소'를 입력해보세요 "
+        "선택한 시간표에 등록된 강의실 위치가 없습니다. '수강' 페이지에서 각 과목의 '장소'를 입력해보세요 "
         "(예: 공학관 302호)."
     )
+    st.page_link("pages/수강.py", label="수강 페이지로 이동", icon="🎓")
     st.stop()
 
 
