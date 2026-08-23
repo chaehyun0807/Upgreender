@@ -6,7 +6,7 @@ from core.extraction import classify_document, extract_credit_requirements, extr
 from core.models import CreditCategory, CreditRequirement, RequiredCourse, StudentProfile, TranscriptRecord
 from core.storage import init_db, list_syllabi, load_profile, load_sample_profile, save_profile, seed_sample_syllabi
 from core.theme import inject_theme
-from core.upstage_client import UpstageError, parse_document
+from core.upstage_client import UpstageError, call_agent, extract_agent_output_text, parse_document
 
 st.set_page_config(page_title="성적표 업로드", page_icon="📄", layout="wide")
 init_db()
@@ -102,6 +102,28 @@ with st.expander("⚙️ 설정 및 데이터"):
 5. **통합 캘린더** — 공지·공모전·행사·시험일정을 모아서 보고 구글 캘린더로 내보냅니다.
 """
     )
+
+with st.expander("🧪 Studio 에이전트로 테스트 호출 (베타)"):
+    st.caption(
+        "지금 위 파싱 기능은 우리 코드가 직접 Document Parse + Solar Chat을 호출하는 방식입니다. "
+        "이 영역은 Upstage Studio에서 만든 Parse→Classify→Extract→Instruct 에이전트를 대신 호출해 "
+        "원본 응답을 그대로 확인해보는 테스트용입니다. 응답 구조를 확인한 뒤 정식 파싱 경로로 연결할 수 있습니다."
+    )
+    agent_test_file = st.file_uploader(
+        "테스트할 문서 (성적표/강의계획서/학사편람/공지 등)",
+        type=["pdf", "png", "jpg", "jpeg", "docx", "xlsx", "pptx"],
+        disabled=not has_upstage_key(),
+        key="agent_test_file",
+    )
+    if st.button("에이전트 호출", disabled=not (has_upstage_key() and agent_test_file)):
+        with st.spinner("Studio 에이전트를 호출하는 중..."):
+            try:
+                raw = call_agent(agent_test_file.read(), agent_test_file.name)
+                st.success("에이전트 호출 성공. 아래에서 원본 응답을 확인하세요.")
+                st.json(raw)
+                st.text_area("추출된 텍스트(추정)", extract_agent_output_text(raw), height=200)
+            except UpstageError as e:
+                st.error(str(e))
 
 if "transcript_df" not in st.session_state:
     existing = load_profile()

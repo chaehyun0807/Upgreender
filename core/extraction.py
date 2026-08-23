@@ -238,6 +238,31 @@ def extract_required_courses(markdown_text: str) -> list[RequiredCourse]:
     ]
 
 
+def syllabus_from_agent_output(data: dict) -> Syllabus:
+    """Studio 에이전트(강의계획서 Extract 브랜치)가 만든 JSON을 Syllabus로 변환한다.
+    year_restriction: Studio의 Integer 필드 제약 때문에 '제한없음'이 0으로 온다 -> None으로 변환."""
+    year_restriction = data.get("year_restriction")
+    if not year_restriction:
+        year_restriction = None
+    return Syllabus(
+        course_code=data["course_code"],
+        course_name=data["course_name"],
+        department=data.get("department", ""),
+        credits=float(data["credits"]),
+        category=CreditCategory.from_str(data["category"]),
+        professor=data.get("professor", ""),
+        time_slots=[TimeSlot(day=t["day"], start=t["start"], end=t["end"]) for t in data.get("time_slots", [])],
+        location=data.get("location", ""),
+        team_project=bool(data.get("team_project", False)),
+        exam_types=data.get("exam_types") or ["기말고사"],
+        attendance_intensity=data.get("attendance_intensity", "보통"),
+        tags=data.get("tags", []),
+        year_restriction=year_restriction,
+        prerequisites=data.get("prerequisites", []),
+        allow_retake=bool(data.get("allow_retake", False)),
+    )
+
+
 def extract_syllabus(markdown_text: str) -> Syllabus:
     d = chat_json(_SYLLABUS_PROMPT, markdown_text, SYLLABUS_SCHEMA, "syllabus")
     return Syllabus(

@@ -5,9 +5,10 @@ import streamlit as st
 
 from core.calendar_export import build_google_quick_add_url, build_ics
 from core.calendar_view import render_month_calendar_html
-from core.config import has_upstage_key
+from core.config import has_discord_webhook, has_upstage_key
 from core.extraction import extract_calendar_events
 from core.models import CALENDAR_SOURCE_TYPES, CalendarEvent
+from core.notify import NotifyError, send_discord_message
 from core.storage import (
     add_calendar_event,
     delete_calendar_event,
@@ -112,6 +113,7 @@ rows = list_calendar_events()
 if not rows:
     st.info("등록된 일정이 없습니다. 위에서 등록해보세요.")
     st.stop()
+id_to_event_all = dict(rows)
 
 events_by_day: dict[date, list[CalendarEvent]] = {}
 unresolved: list[tuple[int, CalendarEvent]] = []
@@ -203,6 +205,41 @@ with st.expander("📌 일정별 구글 캘린더 Quick Add 링크"):
     for eid, event, resolved in ics_ready:
         url = build_google_quick_add_url(event, resolved)
         st.markdown(f"- [{event.title} ({resolved.isoformat()}) — 구글 캘린더에 추가]({url})")
+
+st.divider()
+st.subheader("4. Discord로 알림 보내기")
+if not has_discord_webhook():
+    st.info(
+        "`.env`에 `DISCORD_WEBHOOK_URL`이 설정되지 않았습니다. 디스코드 서버 → 채널 설정 → 연동 → "
+        "웹훅에서 URL을 만들어 `.env`에 추가하면 이 기능을 쓸 수 있습니다."
+    )
+notify_id = st.selectbox(
+    "알림을 보낼 일정",
+    options=[eid for eid, _ in rows],
+    format_func=lambda i: f"{id_to_event_all[i].title} ({id_to_event_all[i].source_type})",
+    key="notify_select",
+    disabled=not has_discord_webhook(),
+) if rows else None
+if notify_id is not None:
+    target_event = id_to_event_all[notify_id]
+    resolved = target_event.resolved_date(semester_start)
+    message_lines = [f"📌 **{target_event.title}**"]
+    if resolved:
+        message_lines.append(f"날짜: {resolved.isoformat()}" + (f" {target_event.time}" if target_event.time else ""))
+    elif target_event.week_number:
+        message_lines.append(f"주차: {target_event.week_number}주차 (날짜 미확정)")
+    if target_event.location:
+        message_lines.append(f"장소: {target_event.location}")
+    if target_event.description:
+        message_lines.append(target_event.description)
+    preview_message = "\n".join(message_lines)
+    st.text_area("전송될 메시지", preview_message, height=100, key=f"notify_preview_{notify_id}")
+    if st.button("📨 이 일정 Discord로 전송", disabled=not has_discord_webhook()):
+        try:
+            send_discord_message(preview_message)
+            st.success("Discord로 전송했습니다.")
+        except NotifyError as e:
+            st.error(str(e))
 
 st.divider()
 with st.expander("✏️ 일정 수정 / 삭제"):

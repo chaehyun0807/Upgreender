@@ -4,11 +4,11 @@ import pandas as pd
 import streamlit as st
 
 from core.config import has_upstage_key
-from core.extraction import extract_syllabus
+from core.extraction import extract_syllabus, syllabus_from_agent_output
 from core.models import CreditCategory, Syllabus, TimeSlot
 from core.storage import add_syllabus, delete_syllabus, init_db, list_syllabi, seed_sample_syllabi, update_syllabus
 from core.theme import inject_theme
-from core.upstage_client import UpstageError, parse_document
+from core.upstage_client import UpstageError, call_agent, parse_agent_output, parse_document
 
 st.set_page_config(page_title="수강", page_icon="🎓", layout="wide")
 init_db()
@@ -21,7 +21,41 @@ ATTENDANCE_VALUES = ["낮음", "보통", "높음"]
 st.title("📊 강의계획서 비교 및 태그 필터링")
 
 st.subheader("1. 강의계획서 등록")
-tab_upload, tab_manual = st.tabs(["파일 업로드 (Upstage 자동 태깅)", "직접 입력"])
+tab_agent, tab_upload, tab_manual = st.tabs(["Studio 에이전트로 등록", "파일 업로드 (Upstage 자동 태깅)", "직접 입력"])
+
+with tab_agent:
+    st.caption(
+        "Upstage Studio에서 만든 Parse→Classify→Extract→Instruct 에이전트를 직접 호출해 강의계획서를 등록합니다 "
+        "(옆 탭의 '자동 태깅'과 달리, 우리 코드가 아니라 Studio 에이전트가 파싱/추출을 전부 수행합니다)."
+    )
+    if not has_upstage_key():
+        st.info("UPSTAGE_API_KEY가 없으면 이 기능은 비활성화됩니다.")
+    agent_syllabus_files = st.file_uploader(
+        "강의계획서 파일 (여러 개 선택 가능)",
+        type=["pdf", "png", "jpg", "jpeg", "docx", "xlsx", "pptx"],
+        accept_multiple_files=True,
+        disabled=not has_upstage_key(),
+        key="agent_syllabus_files",
+    )
+    if st.button("에이전트로 파싱 후 등록", disabled=not (has_upstage_key() and agent_syllabus_files)):
+        added = 0
+        parsed_previews = []
+        with st.spinner("Studio 에이전트를 호출하는 중... (Parse→Classify→Extract→Instruct)"):
+            for f in agent_syllabus_files:
+                try:
+                    response = call_agent(f.read(), f.name)
+                    branch, data = parse_agent_output(response)
+                    syllabus = syllabus_from_agent_output(data)
+                    add_syllabus(syllabus)
+                    added += 1
+                    parsed_previews.append((f.name, branch, data, syllabus))
+                except UpstageError as e:
+                    st.error(f"{f.name}: {e}")
+        if added:
+            st.success(f"{added}개 강의계획서를 등록했습니다.")
+        for filename, branch, data, syllabus in parsed_previews:
+            with st.expander(f"🔍 {filename} — 에이전트 응답 확인 (분류: {branch})"):
+                st.json(data)
 
 with tab_upload:
     if not has_upstage_key():
