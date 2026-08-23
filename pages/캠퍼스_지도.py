@@ -134,7 +134,7 @@ path_json = json.dumps([{"lat": lat, "lng": lng} for lat, lng, _ in points], ens
 
 map_html = f"""
 <div id="map" style="width:100%;height:560px;border-radius:12px;"></div>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey={KAKAO_JS_KEY}&autoload=false"></script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={KAKAO_JS_KEY}&autoload=false"></script>
 <script>
 kakao.maps.load(function () {{
   var container = document.getElementById('map');
