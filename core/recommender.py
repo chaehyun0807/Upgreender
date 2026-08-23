@@ -148,5 +148,6 @@ def recommend_timetables(
                 requirement_breakdown=breakdown,
             )
         )
-    timetables.sort(key=lambda t: t.requirement_fill, reverse=True)
+    # 부족한 졸업요건을 채우는 정도가 1순위, 같은 값이면 학점을 더 많이 채우는 조합을 우선한다.
+    timetables.sort(key=lambda t: (t.requirement_fill, t.total_credits), reverse=True)
     return timetables[:top_n]
